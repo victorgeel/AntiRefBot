@@ -1,8 +1,12 @@
+import os
 import telebot
 from telebot.types import ChatPermissions
 
-# Initialize the bot with your token
-bot = telebot.TeleBot("7292124945:")
+# Get the token from the environment variable
+token = os.getenv('7292124945:AAE8cXZ4Tmk0ANW0RC6hI_R7IrWNZYVtpzQ')
+
+# Initialize the bot with the token
+bot = telebot.TeleBot(token)
 
 # Define the list of referral link keywords
 REFERRAL_KEYWORDS = ["ref", "joinchat", "invite", "t.me"]
@@ -10,7 +14,7 @@ REFERRAL_KEYWORDS = ["ref", "joinchat", "invite", "t.me"]
 # Function to mute the user
 def mute_user(chat_id, user_id):
     bot.restrict_chat_member(chat_id, user_id, ChatPermissions(can_send_messages=False))
-    bot.send_message(chat_id, f"စောက်ဝာာသား {user_id} လက်ယားမှုအတွက် Group ထဲကနေ ခွေးလို ကန်ထုတ်လ်ုက်ပြီ.")
+    bot.send_message(chat_id, f"စောက်ဝါးသား {user_id} လက်ယားမှုအတွက် Group ထဲကနေ ခွေးလို ကန်ထုတ်လ်ုက်ပြီ.")
 
 # Handle the /start and /help commands
 @bot.message_handler(commands=['start', 'help'])
