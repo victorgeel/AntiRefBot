@@ -15,7 +15,7 @@ def mute_user(chat_id, user_id):
 # Handle the /start and /help commands
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.reply_to(message, "မင်္ဂလာပါ!တောသားများကို နှိမ်နင်းပေးနေတဲ့ သခင်ကြီးပါ !")
+    bot.reply_to(message, "**မင်္ဂလာပါ ! စောက်တောသားများကို နှိမ်နင်းပေးနေတဲ့ သခင်ကြီးလာပါပြီဗျာ!**")
 
 # Handle all other messages
 @bot.message_handler(func=lambda message: True)
