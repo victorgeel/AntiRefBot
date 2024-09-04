@@ -1,41 +1,29 @@
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+import telebot
+from telebot.types import ChatPermissions
 
-# Replace 'YOUR_TOKEN_HERE' with your actual bot token
-TOKEN = 'YOUR_TOKEN_HERE'
+# Initialize the bot with your token
+bot = telebot.TeleBot("XXXX:xxxxxxx")
 
-# Keywords to identify referral links (add more as needed)
-REFERRAL_KEYWORDS = ['ref', 'referral', 'join', 'discount']
+# Define the list of referral link keywords
+REFERRAL_KEYWORDS = ["ref", "joinchat", "invite", "t.me"]
 
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Hi! I am your moderation bot.')
+# Function to mute the user
+def mute_user(chat_id, user_id):
+    bot.restrict_chat_member(chat_id, user_id, ChatPermissions(can_send_messages=False))
+    bot.send_message(chat_id, f"စောက်ဝောာသား {user_id} လက်ယားမှုအတွက် Group ထဲကနေ ခွေးလို ကန်ထုတ်လ်ုက်ပြီ.") 
 
-def block_referrals(update: Update, context: CallbackContext) -> None:
-    # Check if message contains a referral link
-    message_text = update.message.text.lower()
-    if any(keyword in message_text for keyword in REFERRAL_KEYWORDS):
-        # Automatically ban the user
-        context.bot.kick_chat_member(update.message.chat.id, update.message.from_user.id)
-        update.message.reply_text(f'User {update.message.from_user.username} has been banned for sending referral links.')
+# Handle the /start and /help commands
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.reply_to(message, "မင်္ဂလာပါ!တောသားများကို နှိမ်နင်းပေးနေတဲ့ သခင်ကြီးပါ !")
+
+# Handle all other messages
+@bot.message_handler(func=lambda message: True)
+def check_message(message):
+    if any(keyword in message.text.lower() for keyword in REFERRAL_KEYWORDS):
+        mute_user(message.chat.id, message.from_user.id)
     else:
-        update.message.reply_text('Message received.')
+        bot.reply_to(message, message.text)
 
-def main() -> None:
-    # Set up the Updater
-    updater = Updater(TOKEN)
-    dispatcher = updater.dispatcher
-
-    # Add command handler to start bot
-    dispatcher.add_handler(CommandHandler("start", start))
-
-    # Add message handler to block referrals
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, block_referrals))
-
-    # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you send a stop signal
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
+# Start polling
+bot.infinity_polling()
