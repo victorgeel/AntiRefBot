@@ -9,7 +9,7 @@ token = os.getenv('7292124945:AAE8cXZ4Tmk0ANW0RC6hI_R7IrWNZYVtpzQ')
 bot = telebot.TeleBot(token)
 
 # Define the list of referral link keywords
-REFERRAL_KEYWORDS = ["ref", "joinchat", "invite", "t.me"]
+REFERRAL_KEYWORDS = ["ref","vt.tiktok.com", "joinchat", "invite", "t.me"]
 
 # Function to mute the user
 def mute_user(chat_id, user_id):
