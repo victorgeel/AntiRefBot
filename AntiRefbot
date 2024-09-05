@@ -1,0 +1,201 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOOTzuIjkcSnZ0sxzE70KCO",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/victorgeel/AntiRefBot/blob/main/AntiRefbot\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "-clyLjBWJlfa"
+      },
+      "outputs": [],
+      "source": [
+        "!git clone https://github.com/vvvgeek/AntiRefBot\n",
+        "%cd /content/AntiRefBot"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install -r /content/AntiRefBot/requirements.txt"
+      ],
+      "metadata": {
+        "id": "ztig87sQJ1KH"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install flask-ngrok"
+      ],
+      "metadata": {
+        "id": "uevJCJmZLy5d"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install pyngrok flask  # Install ngrok and flask\n",
+        "\n",
+        "import os\n",
+        "import telebot\n",
+        "from flask import Flask\n",
+        "from pyngrok import ngrok  # Import pyngrok to handle ngrok setup\n",
+        "\n",
+        "# Set up the Telegram bot\n",
+        "API_KEY = '7292124945:AAE8cXZ4Tmk0ANW0RC6hI_R7IrWNZYVtpzQ'  # Replace with your Telegram API key\n",
+        "bot = telebot.TeleBot(API_KEY)\n",
+        "\n",
+        "# Set up the Flask app\n",
+        "app = Flask(__name__)\n",
+        "\n",
+        "# Function to handle /start command\n",
+        "@bot.message_handler(commands=['start'])\n",
+        "def send_welcome(message):\n",
+        "    bot.reply_to(message, \"Hello! I'm alive and running on Colab.\")\n",
+        "\n",
+        "# Function to run the bot\n",
+        "def run_bot():\n",
+        "    bot.polling()\n",
+        "\n",
+        "# Route for Flask app\n",
+        "@app.route('/')\n",
+        "def home():\n",
+        "    return \"Bot is running!\"\n",
+        "\n",
+        "# Step 1: Connect ngrok with your token\n",
+        "ngrok.set_auth_token(\"2ldPp0d7xqgKxgdsGGTxbEIHQCp_DA1185oAmS5v4fWMmCtH\")  # Replace with your ngrok token\n",
+        "\n",
+        "# Step 2: Create a public URL for your Flask app\n",
+        "public_url = ngrok.connect(5000)\n",
+        "print(f\"Public URL: {public_url}\")\n",
+        "\n",
+        "# Step 3: Run both Flask app and bot\n",
+        "if __name__ == '__main__':\n",
+        "    from threading import Thread\n",
+        "\n",
+        "    # Start the bot in a separate thread\n",
+        "    bot_thread = Thread(target=run_bot)\n",
+        "    bot_thread.start()\n",
+        "\n",
+        "    # Start the Flask app (Flask runs on port 5000, ngrok makes it public)\n",
+        "    app.run(port=5000)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "xS2gpKXWLzIZ",
+        "outputId": "387500da-8320-476d-d59c-84e705530bb6"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting pyngrok\n",
+            "  Downloading pyngrok-7.2.0-py3-none-any.whl.metadata (7.4 kB)\n",
+            "Requirement already satisfied: flask in /usr/local/lib/python3.10/dist-packages (2.2.5)\n",
+            "Requirement already satisfied: PyYAML>=5.1 in /usr/local/lib/python3.10/dist-packages (from pyngrok) (6.0.2)\n",
+            "Requirement already satisfied: Werkzeug>=2.2.2 in /usr/local/lib/python3.10/dist-packages (from flask) (3.0.4)\n",
+            "Requirement already satisfied: Jinja2>=3.0 in /usr/local/lib/python3.10/dist-packages (from flask) (3.1.4)\n",
+            "Requirement already satisfied: itsdangerous>=2.0 in /usr/local/lib/python3.10/dist-packages (from flask) (2.2.0)\n",
+            "Requirement already satisfied: click>=8.0 in /usr/local/lib/python3.10/dist-packages (from flask) (8.1.7)\n",
+            "Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.10/dist-packages (from Jinja2>=3.0->flask) (2.1.5)\n",
+            "Downloading pyngrok-7.2.0-py3-none-any.whl (22 kB)\n",
+            "Installing collected packages: pyngrok\n",
+            "Successfully installed pyngrok-7.2.0\n",
+            "Public URL: NgrokTunnel: \"https://3dd6-34-106-64-242.ngrok-free.app\" -> \"http://localhost:5000\"\n",
+            " * Serving Flask app '__main__'\n",
+            " * Debug mode: off\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "INFO:werkzeug:\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n",
+            " * Running on http://127.0.0.1:5000\n",
+            "INFO:werkzeug:\u001b[33mPress CTRL+C to quit\u001b[0m\n",
+            "2024-09-05 03:33:10,089 (__init__.py:1232 Thread-13 (run_bot)) ERROR - TeleBot: \"Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\"\n",
+            "ERROR:TeleBot:Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\n",
+            "2024-09-05 03:33:10,091 (__init__.py:1234 Thread-13 (run_bot)) ERROR - TeleBot: \"Exception traceback:\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/__init__.py\", line 1225, in __threaded_polling\n",
+            "    polling_thread.raise_exceptions()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/util.py\", line 111, in raise_exceptions\n",
+            "    raise self.exception_info\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/util.py\", line 93, in run\n",
+            "    task(*args, **kwargs)\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/__init__.py\", line 687, in __retrieve_updates\n",
+            "    updates = self.get_updates(offset=(self.last_update_id + 1),\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/__init__.py\", line 659, in get_updates\n",
+            "    json_updates = apihelper.get_updates(\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py\", line 330, in get_updates\n",
+            "    return _make_request(token, method_url, params=payload)\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py\", line 168, in _make_request\n",
+            "    json_result = _check_result(method_name, result)\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py\", line 195, in _check_result\n",
+            "    raise ApiTelegramException(method_name, result, result_json)\n",
+            "telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\n",
+            "\"\n",
+            "ERROR:TeleBot:Exception traceback:\n",
+            "Traceback (most recent call last):\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/__init__.py\", line 1225, in __threaded_polling\n",
+            "    polling_thread.raise_exceptions()\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/util.py\", line 111, in raise_exceptions\n",
+            "    raise self.exception_info\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/util.py\", line 93, in run\n",
+            "    task(*args, **kwargs)\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/__init__.py\", line 687, in __retrieve_updates\n",
+            "    updates = self.get_updates(offset=(self.last_update_id + 1),\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/__init__.py\", line 659, in get_updates\n",
+            "    json_updates = apihelper.get_updates(\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py\", line 330, in get_updates\n",
+            "    return _make_request(token, method_url, params=payload)\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py\", line 168, in _make_request\n",
+            "    json_result = _check_result(method_name, result)\n",
+            "  File \"/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py\", line 195, in _check_result\n",
+            "    raise ApiTelegramException(method_name, result, result_json)\n",
+            "telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running\n",
+            "\n",
+            "INFO:werkzeug:127.0.0.1 - - [05/Sep/2024 03:33:42] \"GET / HTTP/1.1\" 200 -\n",
+            "INFO:werkzeug:127.0.0.1 - - [05/Sep/2024 03:33:43] \"\u001b[33mGET /favicon.ico HTTP/1.1\u001b[0m\" 404 -\n",
+            "INFO:werkzeug:127.0.0.1 - - [05/Sep/2024 03:34:50] \"HEAD / HTTP/1.1\" 200 -\n",
+            "INFO:werkzeug:127.0.0.1 - - [05/Sep/2024 03:35:03] \"GET / HTTP/1.1\" 200 -\n",
+            "INFO:werkzeug:127.0.0.1 - - [05/Sep/2024 03:35:13] \"GET / HTTP/1.1\" 200 -\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
