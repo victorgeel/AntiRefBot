@@ -38,5 +38,17 @@ This project creates a bot that blocks anyone who sends a referral link to your 
 
  You can add or modify the keywords in the REFERRAL_KEYWORDS list to match the types of links you want to mute.Example:
 
- ```python
+
 REFERRAL_KEYWORDS = ["ref", "joinchat", "invite", "t.me"]
+
+### Colab Notebook link 
+
+https://colab.research.google.com/github/victorgeel/AntiRefBot/blob/main/AntiRefbot.ipynb
+
+### Set up the Telegram bot
+
+API_KEY = 'YOUR_TELEGRAM_BOT_API_KEY'
+
+### Step up : Connect ngrok with your token
+
+ngrok.set_auth_token("YOUR_NGROK_AUTH_TOKEN") 
