@@ -43,7 +43,7 @@ REFERRAL_KEYWORDS = ["ref", "joinchat", "invite", "t.me"]
 
 ### Colab Notebook link 
 
-https://colab.research.google.com/github/victorgeel/AntiRefBot/blob/main/AntiRefbot.ipynb
+https://colab.research.google.com/github/victorgeel/AntiRefBot/blob/main/AntiRefbot_V.ipynb
 
 ### Set up the Telegram bot
 
