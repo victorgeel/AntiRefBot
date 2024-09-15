@@ -38,7 +38,7 @@ async function muteUser(chatId, userId) {
 }
 
 async function handleCommand(message) {
-  const welcomeMessage = "မင်္ဂလာပါ ! တောသားတွေ ဂျင်းကောင်တွေကို နှိမ်နင်းပေးတဲ့ သခင်ကြီးပါ ! Fastssh Myanmar Group က ကြိုဆိုပါတယ် !";
+  const welcomeMessage = "မင်္ဂလာပါ ! တောသားတွေ ဂျင်းကောင်တွေကို နှိမ်နင်းပေးတဲ့ သခင်ကြီးပါ ! 🩵Fastssh Myanmar Group က ကြိုဆိုပါတယ်💙 !";
   await callTelegramApi('sendMessage', {
     chat_id: message.chat.id,
     text: welcomeMessage
