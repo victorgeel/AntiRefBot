@@ -1,5 +1,6 @@
 
 # My Telegram Bot
+# ______________
 
 This bot mutes users who send referral links in a Telegram group.
 
@@ -42,23 +43,26 @@ This project creates a bot that blocks anyone who sends a referral link to your 
 REFERRAL_KEYWORDS = ["ref", "joinchat", "invite", "t.me"]
 
 ### Colab Notebook link 
+## _________________
 
 https://colab.research.google.com/github/victorgeel/AntiRefBot/blob/main/AntiRefbot_V.ipynb
 
 ### Set up the Telegram bot
-
+## ______________________
 API_KEY = 'YOUR_TELEGRAM_BOT_API_KEY'
 
 ### Step up : Connect ngrok with your token
 
 ngrok.set_auth_token("YOUR_NGROK_AUTH_TOKEN") 
 
-### For cloudflare workers 
+### For cloudflare workers
+## ____________________ 
 
 copy from worker.js to your
 worker.
 
-### for webhook 
+### for webhook
+## ___________ 
 
 
 ```curl -F "url=https://your-worker-url.example.com" https://api.telegram.org/bot<your-bot-token>/setWebhook```
