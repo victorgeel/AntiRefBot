@@ -1,7 +1,6 @@
-// Cloudflare Worker environment setup
 addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-})
+  event.respondWith(handleRequest(event.request));
+});
 
 const TOKEN = "7292124945:AAE8cXZ4Tmk0ANW0RC6hI_R7IrWNZYVtpzQ";
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TOKEN}`;
@@ -42,7 +41,7 @@ async function handleCommand(message) {
   });
 }
 
-// Handle incoming messages
+// Handle incoming messages and check for referral links
 async function checkMessage(message) {
   const messageText = message.text.toLowerCase();
   if (REFERRAL_KEYWORDS.some(keyword => messageText.includes(keyword))) {
@@ -66,4 +65,4 @@ async function handleRequest(request) {
   }
 
   return new Response('Invalid request', { status: 400 });
-  }
+               }
