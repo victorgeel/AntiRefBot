@@ -52,3 +52,16 @@ API_KEY = 'YOUR_TELEGRAM_BOT_API_KEY'
 ### Step up : Connect ngrok with your token
 
 ngrok.set_auth_token("YOUR_NGROK_AUTH_TOKEN") 
+
+### For cloudflare workers 
+
+copy from worker.js to your
+worker.
+
+for webhook 
+
+
+curl -F "url=https://your-worker-url.example.com" https://api.telegram.org/bot<your-bot-token>/setWebhook
+
+
+# ________________________
