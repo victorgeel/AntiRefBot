@@ -33,12 +33,12 @@ async function muteUser(chatId, userId) {
 
   await callTelegramApi('sendMessage', {
     chat_id: chatId,
-    text: `User ${userId} has been muted for sending a message with prohibited content.`
+    text: `စောက်တောသား ${userId} ကို လက်ယားမှုအတွက် Group ထဲကနေ ခွေးလို ကန်ထုတ်လိုက်ပါပြီ‌ဗျို..! အဆင်ပြေရင်လက်ခုတ်သံလေးတွေ ကြားချင်ပါတယ် 😅😅😅`
   });
 }
 
 async function handleCommand(message) {
-  const welcomeMessage = "Welcome! I am here to manage the group and enforce rules.";
+  const welcomeMessage = "မင်္ဂလာပါ ! တောသားတွေ ဂျင်းကောင်တွေကို နှိမ်နင်းပေးတဲ့ သခင်ကြီးပါ ! Fastssh Myanmar Group က ကြိုဆိုပါတယ် !";
   await callTelegramApi('sendMessage', {
     chat_id: message.chat.id,
     text: welcomeMessage
