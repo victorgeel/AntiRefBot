@@ -1,101 +1,69 @@
-/**
- * https://github.com/cvzi/telegram-bot-cloudflare
- */
-
-const TOKEN = ENV_BOT_TOKEN // Get it from @BotFather https://core.telegram.org/bots#6-botfather
-const WEBHOOK = '/endpoint'
-const SECRET = ENV_BOT_SECRET // A-Z, a-z, 0-9, _ and -
-
-/**
- * Wait for requests to the worker
- */
+// Cloudflare Worker environment setup
 addEventListener('fetch', event => {
-  const url = new URL(event.request.url)
-  if (url.pathname === WEBHOOK) {
-    event.respondWith(handleWebhook(event))
-  } else if (url.pathname === '/registerWebhook') {
-    event.respondWith(registerWebhook(event, url, WEBHOOK, SECRET))
-  } else if (url.pathname === '/unRegisterWebhook') {
-    event.respondWith(unRegisterWebhook(event))
-  } else {
-    event.respondWith(new Response('No handler for this request'))
-  }
+  event.respondWith(handleRequest(event.request))
 })
 
-/**
- * Handle requests to WEBHOOK
- * https://core.telegram.org/bots/api#update
- */
-async function handleWebhook (event) {
-  // Check secret
-  if (event.request.headers.get('X-Telegram-Bot-Api-Secret-Token') !== SECRET) {
-    return new Response('Unauthorized', { status: 403 })
-  }
+const TOKEN = "7292124945:AAE8cXZ4Tmk0ANW0RC6hI_R7IrWNZYVtpzQ";
+const TELEGRAM_API_URL = `https://api.telegram.org/bot${TOKEN}`;
+const REFERRAL_KEYWORDS = ["ref", "joinchat", "invite", "t.me"];
 
-  // Read request body synchronously
-  const update = await event.request.json()
-  // Deal with response asynchronously
-  event.waitUntil(onUpdate(update))
-
-  return new Response('Ok')
+// Utility function to call Telegram API
+async function callTelegramApi(method, body) {
+  const url = `${TELEGRAM_API_URL}/${method}`;
+  const options = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  };
+  return fetch(url, options);
 }
 
-/**
- * Handle incoming Update
- * https://core.telegram.org/bots/api#update
- */
-async function onUpdate (update) {
-  if ('message' in update) {
-    await onMessage(update.message)
-  }
-}
-
-/**
- * Handle incoming Message
- * https://core.telegram.org/bots/api#message
- */
-function onMessage (message) {
-  return sendPlainText(message.chat.id, 'Echo:\n' + message.text)
-}
-
-/**
- * Send plain text message
- * https://core.telegram.org/bots/api#sendmessage
- */
-async function sendPlainText (chatId, text) {
-  return (await fetch(apiUrl('sendMessage', {
+// Function to mute the user
+async function muteUser(chatId, userId) {
+  const chatPermissions = { can_send_messages: false };
+  await callTelegramApi('restrictChatMember', {
     chat_id: chatId,
-    text
-  }))).json()
+    user_id: userId,
+    permissions: chatPermissions
+  });
+
+  await callTelegramApi('sendMessage', {
+    chat_id: chatId,
+    text: `စောက်ဝာာသား ${userId} လက်ယားမှုအတွက် Group ထဲကနေ ခွေးလို ကန်ထုတ်လ်ုက်ပြီ.`
+  });
 }
 
-/**
- * Set webhook to this worker's url
- * https://core.telegram.org/bots/api#setwebhook
- */
-async function registerWebhook (event, requestUrl, suffix, secret) {
-  // https://core.telegram.org/bots/api#setwebhook
-  const webhookUrl = `${requestUrl.protocol}//${requestUrl.hostname}${suffix}`
-  const r = await (await fetch(apiUrl('setWebhook', { url: webhookUrl, secret_token: secret }))).json()
-  return new Response('ok' in r && r.ok ? 'Ok' : JSON.stringify(r, null, 2))
+// Handle the /start and /help commands
+async function handleCommand(message) {
+  const welcomeMessage = "**မင်္ဂလာပါ ! စောက်တောသားများကို နှိမ်နင်းပေးနေတဲ့ သခင်ကြီးလာပါပြီဗျာ!**";
+  await callTelegramApi('sendMessage', {
+    chat_id: message.chat.id,
+    text: welcomeMessage
+  });
 }
 
-/**
- * Remove webhook
- * https://core.telegram.org/bots/api#setwebhook
- */
-async function unRegisterWebhook (event) {
-  const r = await (await fetch(apiUrl('setWebhook', { url: '' }))).json()
-  return new Response('ok' in r && r.ok ? 'Ok' : JSON.stringify(r, null, 2))
-}
-
-/**
- * Return url to telegram api, optionally with parameters added
- */
-function apiUrl (methodName, params = null) {
-  let query = ''
-  if (params) {
-    query = '?' + new URLSearchParams(params).toString()
+// Handle incoming messages
+async function checkMessage(message) {
+  const messageText = message.text.toLowerCase();
+  if (REFERRAL_KEYWORDS.some(keyword => messageText.includes(keyword))) {
+    await muteUser(message.chat.id, message.from.id);
   }
-  return `https://api.telegram.org/bot${TOKEN}/${methodName}${query}`
 }
+
+// Main handler for incoming webhook requests
+async function handleRequest(request) {
+  if (request.method === 'POST') {
+    const { message } = await request.json();
+
+    if (message.text) {
+      if (message.text.startsWith('/start') || message.text.startsWith('/help')) {
+        await handleCommand(message);
+      } else {
+        await checkMessage(message);
+      }
+    }
+    return new Response('OK', { status: 200 });
+  }
+
+  return new Response('Invalid request', { status: 400 });
+  }
