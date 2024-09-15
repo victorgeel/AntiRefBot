@@ -61,7 +61,7 @@ worker.
 ### for webhook 
 
 
-curl -F "url=https://your-worker-url.example.com" https://api.telegram.org/bot<your-bot-token>/setWebhook
+```curl -F "url=https://your-worker-url.example.com" https://api.telegram.org/bot<your-bot-token>/setWebhook```
 
 
 # ________________________
