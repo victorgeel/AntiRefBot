@@ -5,6 +5,7 @@ addEventListener('fetch', event => {
 const TOKEN = "7292124945:AAE8cXZ4Tmk0ANW0RC6hI_R7IrWNZYVtpzQ";
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TOKEN}`;
 const REFERRAL_KEYWORDS = ["ref", "joinchat", "invite", "claim", "airdrop", "t.me"];
+const SAFE_COMMANDS = ["/help", "/bugsni", "/psi", "/freecfg", "/sublink"]; // Added /sublink to safe commands
 
 async function callTelegramApi(method, body) {
   const url = `${TELEGRAM_API_URL}/${method}`;
@@ -42,7 +43,7 @@ async function handleCommand(message) {
   const messageText = message.text;
 
   if (messageText.startsWith('/help')) {
-    const helpMessage = `/psi\nPsiphon termux cmd ယူရန်....\n\n/freecfg\nFree Vpn Config များအတွက် termux tool cmd ရယူရန်....\n\n/bugsni\nBug နှင့် Sni ရှာနိုင်တဲ့ termux tool cmd ရယူရန်....`;
+    const helpMessage = `/psi\nPsiphon termux cmd ယူရန်....\n\n/freecfg\nFree Vpn Config များအတွက် termux tool cmd ရယူရန်....\n\n/bugsni\nBug နှင့် Sni ရှာနိုင်တဲ့ termux tool cmd ရယူရန်....\n\n/sublink\nဖရီး Subscription link update ရယူရန်....`;
     await callTelegramApi('sendMessage', {
       chat_id: chatId,
       text: helpMessage
@@ -68,6 +69,13 @@ async function handleCommand(message) {
       text: bugsniMessage,
       parse_mode: 'Markdown'
     });
+  } else if (messageText.startsWith('/sublink')) {
+    const sublinkMessage = `**•Subscription Update Links•**\n\n\`\`\`Link\nhttps://mirror.ghproxy.com/https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt\n\nhttps://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/vmess\n\nhttps://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/shadowsocks\n\nhttps://github.com/barry-far/V2ray-Configs/raw/main/Splitted-By-Protocol/trojan.txt\n\nhttps://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/vmessbase64\n\nhttps://raw.githubusercontent.com/itsyebekhe/HiN-VPN/main/subscription/normal/vless\n\nhttps://raw.githubusercontent.com/ts-sf/fly/main/v2\n\nhttps://mirror.v2gh.com/https://raw.githubusercontent.com/ts-sf/fly/main/v2\n\nhttps://raw.githubusercontent.com/Surfboardv2ray/v2ray-worker-sub/master/Eternity\`\`\``;
+    await callTelegramApi('sendMessage', {
+      chat_id: chatId,
+      text: sublinkMessage,
+      parse_mode: 'Markdown'
+    });
   } else {
     const welcomeMessage = "မင်္ဂလာပါ ! တောသားတွေ ဂျင်းကောင်တွေကို နှိမ်နင်းပေးတဲ့ သခင်ကြီးပါ ! 🩵Fastssh Myanmar Group က ကြိုဆိုပါတယ်💙 !";
     await callTelegramApi('sendMessage', {
@@ -79,7 +87,12 @@ async function handleCommand(message) {
 
 async function checkMessage(message) {
   const messageText = message.text.toLowerCase();
-  if (REFERRAL_KEYWORDS.some(keyword => messageText.includes(keyword))) {
+
+  // Check if the message starts with one of the safe commands
+  const isSafeCommand = SAFE_COMMANDS.some(command => messageText.startsWith(command));
+
+  // If the message contains a referral keyword and is not a safe command, mute the user
+  if (!isSafeCommand && REFERRAL_KEYWORDS.some(keyword => messageText.includes(keyword))) {
     await muteUser(message.chat.id, message.from.id);
   }
 }
