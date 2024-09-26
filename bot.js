@@ -23,26 +23,22 @@ async function setWebhook() {
     }
 }
 
-// Function to mute the user
-async function muteUser(chatId, userId) {
-    const muteUrl = `${TELEGRAM_API}${BOT_TOKEN}/restrictChatMember`;
+// Function to ban the user
+async function banUser(chatId, userId) {
+    const banUrl = `${TELEGRAM_API}${BOT_TOKEN}/kickChatMember`;
 
-    const permissions = {
-        can_send_messages: false,
-    };
-
-    await fetch(muteUrl, {
+    await fetch(banUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             chat_id: chatId,
-            user_id: userId,
-            permissions: permissions
+            user_id: userId, // Use userId instead of username
+            until_date: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365 // Ban for 1 year
         })
     });
 
     // Send the notification message to the chat
-    await sendMessage(chatId, `စောက်ဝာာသား ${userId} လက်ယားမှုအတွက် Group ထဲကနေ ခွေးလို ကန်ထုတ်လ်ုက်ပြီ.`);
+    await sendMessage(chatId, `User with ID ${userId} has been banned for sending referral links.`);
 }
 
 // Function to send a message via Telegram
@@ -60,23 +56,37 @@ async function sendMessage(chatId, text) {
     });
 }
 
+// Function to handle new member joining the chat
+async function handleNewMembers(chatId, newMembers) {
+    newMembers.forEach(async member => {
+        const username = member.username || member.first_name; // Use username if available, else first name
+        await sendMessage(chatId, `Welcome @${username} to the group!`);
+    });
+}
+
 // Handle bot commands
 async function handleCommand(command, chatId) {
-    switch (command) {
+    switch (command.trim()) { // Trim command to avoid issues with trailing spaces
+        case '/start':
+            await sendMessage(chatId, '**Hello! The bot is ready to manage this group!**');
+            break;
         case '/help':
-            await sendMessage(chatId, `**Help Menu**\n\nPsiphon termux cmd ယူရန်....\n\`\`\`psiphon\n/psi\`\`\`\n\nFree Vpn Config များအတွက် termux tool cmd ရယူရန်....\n\`\`\`cfg\n/freecfg\`\`\`\n\nBug နှင့် Sni ရှာနိုင်တဲ့ termux tool cmd ရယူရန်....\n\`\`\`Tool\n/bugsni\`\`\`\n\nX-ray V2RAY subscription update link ယူရန်\n\`\`\`URL\n/sub\`\`\``);
+            await sendMessage(chatId, `**Help Menu**\n\nAvailable Commands:\n\nPsiphon termux cmd: \n\`\`\`/psi\`\`\`\n\nFree VPN Config tool: \n\`\`\`/freecfg\`\`\`\n\nBug & SNI Finder tool: \n\`\`\`/bugsni\`\`\`\n\nX-ray V2RAY Subscription Update Links: \n\`\`\`/sub\`\`\`\n\nSubdomain & Port Scanner: \n\`\`\`/subpt\`\`\``);
+            break;
+        case '/subpt':
+            await sendMessage(chatId, `**Subdomain and Port Scanner Instructions**\n\n*Update Your Termux Pkg*\n\`\`\`python\npkg update\npkg upgrade\`\`\`\n\nClone Repo\n\`\`\`Git\ngit clone https://github.com/victorgeel/SubFinder.git\`\`\`\n\nRun Subfinder\n\`\`\`python\npython Run.py\`\`\`\n\nRun Port Scanner\n\`\`\`python\npython portscan.py\`\`\``);
             break;
         case '/bugsni':
-            await sendMessage(chatId, `**•Bug Sni Finder အတွက် cmd•**\n\`\`\`python\npkg update && pkg upgrade -y\npkg install golang\`\`\`\n\nRepo ကို clone ရန်\n\`\`\`python\ngit clone https://github.com/victorgeel/Sub-BugSNI.git\ncd Sub-BugSNI\nchmod +x *\`\`\`\n\nInstall requirements\n\`\`\`python\npip3 install -r requirements.txt\`\`\`\n\nRun Tool\n\`\`\`python\npython run.py\`\`\``);
+            await sendMessage(chatId, `**Bug & SNI Finder Tool**\n\n\`\`\`python\npkg update && pkg upgrade -y\npkg install golang\`\`\`\n\nClone the repo\n\`\`\`python\ngit clone https://github.com/victorgeel/Sub-BugSNI.git\ncd Sub-BugSNI\nchmod +x *\`\`\`\n\nInstall requirements\n\`\`\`python\npip3 install -r requirements.txt\`\`\`\n\nRun the tool\n\`\`\`python\npython run.py\`\`\``);
             break;
         case '/psi':
-            await sendMessage(chatId, `**•Psiphon pro for Android Termux•**\n\`\`\`python\npkg update\npkg upgrade -y\npkg install git\npkg install golang\`\`\`\n\nClone Repo\n\`\`\`python\ngit clone https://github.com/victorgeel/Yes.git\ncd Yes\nchmod +x *\`\`\`\n\nRun Psiphon\n\`\`\`./yes\`\`\`\n\nSocks proxy setting\n\`\`\`socks\n127.0.0.1:3080\`\`\``);
+            await sendMessage(chatId, `**Psiphon Pro for Android Termux**\n\`\`\`python\npkg update\npkg upgrade -y\npkg install git\npkg install golang\`\`\`\n\nClone the repo\n\`\`\`python\ngit clone https://github.com/victorgeel/Yes.git\ncd Yes\nchmod +x *\`\`\`\n\nRun Psiphon\n\`\`\`./yes\`\`\`\n\nSocks proxy settings\n\`\`\`socks\n127.0.0.1:3080\`\`\``);
             break;
         case '/sub':
-            await sendMessage(chatId, `**•Subscription Update Links**\n\`\`\`URL\nhttps://mirror.ghproxy.com/https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt\n\nhttps://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/vmess\n\nhttps://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/shadowsocks\n\nhttps://github.com/barry-far/V2ray-Configs/raw/main/Splitted-By-Protocol/trojan.txt\n\nhttps://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/vmessbase64\n\nhttps://raw.githubusercontent.com/itsyebekhe/HiN-VPN/main/subscription/normal/vless\n\nhttps://raw.githubusercontent.com/ts-sf/fly/main/v2\n\nhttps://mirror.v2gh.com/https://raw.githubusercontent.com/ts-sf/fly/main/v2\n\nhttps://raw.githubusercontent.com/Surfboardv2ray/v2ray-worker-sub/master/Eternity\`\`\``);
+            await sendMessage(chatId, `**Subscription Update Links**\n\`\`\`URL\nhttps://mirror.ghproxy.com/https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt\n\nhttps://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/vmess\n\nhttps://raw.githubusercontent.com/soroushmirzaei/telegram-configs-collector/main/protocols/shadowsocks\n\nhttps://github.com/barry-far/V2ray-Configs/raw/main/Splitted-By-Protocol/trojan.txt\n\nhttps://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/vmessbase64\n\nhttps://raw.githubusercontent.com/itsyebekhe/HiN-VPN/main/subscription/normal/vless\n\nhttps://raw.githubusercontent.com/ts-sf/fly/main/v2\n\nhttps://mirror.v2gh.com/https://raw.githubusercontent.com/ts-sf/fly/main/v2\n\nhttps://raw.githubusercontent.com/Surfboardv2ray/v2ray-worker-sub/master/Eternity\`\`\``);
             break;
         case '/freecfg':
-            await sendMessage(chatId, `**•Free Vpn Config ယူရန် cmd•**\n\`\`\`shell\npkg update\npkg upgrade\`\`\`\n\nClone Repo\n\`\`\`shell\ngit clone https://github.com/victorgeel/FreeVpn.git\ncd FreeVpn\`\`\`\n\nRun Sub-BugSNI Tool\n\`\`\`Shell\nbash Sel.sh\`\`\`\n\n•နံပါတ် 99 ရိုက်ပြီး script Install ပါ။\n•ကျန်အဆင့်များကို နံပါတ်စဉ်အတိုင်းဖတ်ပြီးဆက်လက်လုပ်ဆောင်ပါ။\n\n\`\`\`Script ကို Run ရန်\nkl\`\`\`\nkl ရိုက်ထည့်လိုက်ရင် script ပေါ်လာပါမယ်။`);
+            await sendMessage(chatId, `**Free VPN Config Tool**\n\n*Update Termux Pkg*\n\`\`\`shell\npkg update\npkg upgrade\`\`\`\n\nClone Repo\n\`\`\`shell\ngit clone https://github.com/victorgeel/FreeVpn.git\ncd FreeVpn\`\`\`\n\nRun Tool\n\`\`\`Shell\nbash Sel.sh\`\`\`\n\n•Enter 99 to install the script. Follow further steps as prompted.`);
             break;
         default:
             await sendMessage(chatId, "Unknown command. Please use /help to see the available commands.");
@@ -86,14 +96,14 @@ async function handleCommand(command, chatId) {
 // Function to handle incoming messages
 async function handleMessage(message) {
     const chatId = message.chat.id;
-    const userId = message.from.id;
-    const text = message.text;
+    const userId = message.from.id; // Get the user ID
+    const username = message.from.username || message.from.first_name;
 
     // Check if the message is a bot command
-    if (text.startsWith('/')) {
-        await handleCommand(text, chatId);
-    } else if (REFERRAL_KEYWORDS.some(keyword => text.toLowerCase().includes(keyword))) {
-        await muteUser(chatId, userId);
+    if (message.text.startsWith('/')) {
+        await handleCommand(message.text, chatId);
+    } else if (REFERRAL_KEYWORDS.some(keyword => message.text.toLowerCase().includes(keyword))) {
+        await banUser(chatId, userId); // Use userId to ban the user
     }
 }
 
@@ -102,8 +112,13 @@ async function handleRequest(request) {
     try {
         const update = await request.json();
 
+        // Check if new members joined the chat
+        if (update.message && update.message.new_chat_members) {
+            await handleNewMembers(update.message.chat.id, update.message.new_chat_members);
+        }
+
         // Check if the update contains a message
-        if (update.message) {
+        if (update.message && update.message.text) {
             await handleMessage(update.message);
         }
 
