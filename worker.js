@@ -45,8 +45,20 @@ async function handleUpdate(update) {
 }
 
 async function handleRequest(request) {
-    const update = await request.json();
-    await handleUpdate(update);
+    let update;
+    try {
+        update = await request.json();
+    } catch (error) {
+        // Handle the case where JSON parsing fails
+        console.error("Failed to parse JSON:", error);
+        return new Response('Invalid JSON input', { status: 400 });
+    }
+
+    // If valid JSON, process the update
+    if (update) {
+        await handleUpdate(update);
+    }
+    
     return new Response('OK', { status: 200 });
 }
 
